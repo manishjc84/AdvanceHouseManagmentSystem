@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeHub | Owner Login & House Management</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- OWNER LOGIN: dashboard is hidden until successful login -->
+  <section id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="brand login-brand">⌂ Home<span>Hub</span></div>
+      <div class="login-icon">🔐</div>
+      <h1>Owner Login</h1>
+      <p class="muted centered">Sign in to manage your rental properties</p>
+      <form id="ownerLoginForm">
+        <label for="ownerEmail">Email / Username</label>
+        <input id="ownerEmail" type="text" placeholder="Enter owner email" autocomplete="username" required>
+        <label for="ownerPassword">Password</label>
+        <div class="password-box">
+          <input id="ownerPassword" type="password" placeholder="Enter password" autocomplete="current-password" required>
+          <button type="button" id="togglePassword" class="secondary small-btn">Show</button>
+        </div>
+        <p id="loginError" class="error-message" aria-live="polite"></p>
+        <button class="primary login-submit" type="submit">Login to Dashboard →</button>
+      </form>
+      <div class="demo-login">
+        <strong>Demo login</strong>
+        <span>Email: owner@homehub.com</span>
+        <span>Password: Owner@123</span>
+      </div>
+      <p class="login-footer">© 2026 HomeHub · Owner Access</p>
+    </div>
+  </section>
+
+  <!-- MAIN DASHBOARD -->
+  <div class="app hidden" id="appShell">
+    <aside class="sidebar">
+      <div class="brand">⌂ Home<span>Hub</span></div>
+      <p class="menu-title">MAIN MENU</p>
+      <button class="nav active" data-page="dashboard">▦ Dashboard</button>
+      <button class="nav" data-page="houses">⌂ Houses & Rooms</button>
+      <button class="nav" data-page="tenants">♙ Tenants</button>
+      <button class="nav" data-page="payments">₹ Rent & Payments</button>
+      <button class="nav" data-page="maintenance">🔧 Maintenance</button>
+      <button class="nav" data-page="reports">▤ Reports</button>
+      <div class="sidebar-bottom">
+        <div class="admin-avatar">O</div>
+        <div class="admin-details"><strong>Owner</strong><small>Property Manager</small></div>
+        <button id="logoutBtn" class="logout-btn" title="Logout">↪</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div><h2 id="pageTitle">Dashboard Overview</h2><p id="databaseStatus" class="muted">Connecting to MySQL…</p></div>
+          <p class="muted" id="today"></p>
+        </div>
+        <div class="top-actions">
+          <input id="globalSearch" placeholder="Search records..." aria-label="Search records">
+          <button class="primary" id="quickAdd">+ Add House</button>
+        </div>
+      </header>
+
+      <section id="dashboard" class="page">
+        <div class="welcome">
+          <div><h2>Welcome back, Owner! 👋</h2><p>Here's what's happening with your properties.</p></div>
+          <span class="status">● System Active</span>
+        </div>
+        <div class="stats">
+          <article class="stat-card"><div class="stat-icon blue">⌂</div><p>Total Houses</p><h2 id="totalHouses">0</h2><small>Properties managed</small></article>
+          <article class="stat-card"><div class="stat-icon green">♙</div><p>Occupied Rooms</p><h2 id="occupiedRooms">0</h2><small>Currently rented</small></article>
+          <article class="stat-card"><div class="stat-icon orange">▣</div><p>Vacant Rooms</p><h2 id="vacantRooms">0</h2><small>Available for rent</small></article>
+          <article class="stat-card"><div class="stat-icon purple">₹</div><p>Monthly Rent</p><h2 id="monthlyRent">₹0</h2><small>Expected monthly income</small></article>
+        </div>
+        <div class="two-columns">
+          <article class="panel">
+            <div class="panel-heading"><div><h3>Property Occupancy</h3><p class="muted">Room status overview</p></div></div>
+            <div class="occupancy">
+              <div class="donut" id="occupancyDonut"><div><strong id="occupancyRate">0%</strong><small>Occupied</small></div></div>
+              <div class="legend">
+                <p><span class="dot green-dot"></span> Occupied <strong id="occupiedLegend">0</strong></p>
+                <p><span class="dot orange-dot"></span> Vacant <strong id="vacantLegend">0</strong></p>
+                <p><span class="dot blue-dot"></span> Total rooms <strong id="totalRooms">0</strong></p>
+              </div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><h3>Rent Collection</h3><p class="muted">Payment status overview</p></div></div>
+            <div class="collection">
+              <div class="between"><span>Collected</span><strong id="collectedAmount">₹0</strong></div>
+              <div class="progress"><span id="collectionProgress"></span></div>
+              <div class="between"><span>Collection progress</span><strong id="collectionRate">0%</strong></div>
+              <div class="collection-note" id="pendingSummary">No pending payments</div>
+            </div>
+          </article>
+        </div>
+        <article class="panel">
+          <div class="panel-heading"><div><h3>Recent Rent Payments</h3><p class="muted">Latest payment records</p></div><button class="text-btn" data-goto="payments">View all →</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Tenant</th><th>Property / Room</th><th>Amount</th><th>Due Date</th><th>Status</th></tr></thead><tbody id="recentPayments"></tbody></table></div>
+        </article>
+        <article class="panel">
+          <div class="panel-heading"><div><h3>Recent Maintenance</h3><p class="muted">Repair and service requests</p></div><button class="text-btn" data-goto="maintenance">View all →</button></div>
+          <div id="recentMaintenance" class="request-list"></div>
+        </article>
+      </section>
+
+      <section id="houses" class="page hidden">
+        <div class="section-toolbar"><div><h3>Houses & Rooms</h3><p class="muted">Manage your rental properties.</p></div><button class="primary" id="addHouse">+ Add House</button></div>
+        <div class="filters"><input id="houseSearch" placeholder="Search house or location..."><select id="houseFilter"><option value="all">All room statuses</option><option value="Occupied">Occupied</option><option value="Vacant">Vacant</option></select></div>
+        <div id="houseGrid" class="house-grid"></div>
+      </section>
+
+      <section id="tenants" class="page hidden">
+        <div class="section-toolbar"><div><h3>Tenant Management</h3><p class="muted">Manage resident details.</p></div><button class="primary" id="addTenant">+ Add Tenant</button></div>
+        <div class="filters"><input id="tenantSearch" placeholder="Search tenant, phone or room..."></div>
+        <div class="panel table-wrap"><table><thead><tr><th>Tenant</th><th>Phone</th><th>Property / Room</th><th>Monthly Rent</th><th>Move-in Date</th><th>Action</th></tr></thead><tbody id="tenantTable"></tbody></table></div>
+      </section>
+
+      <section id="payments" class="page hidden">
+        <div class="section-toolbar"><div><h3>Rent & Payments</h3><p class="muted">Track rental income and pending rent.</p></div><button class="primary" id="addPayment">+ Add Payment</button></div>
+        <div class="stats compact-stats">
+          <article class="stat-card"><p>Total Recorded</p><h2 id="paymentTotal">₹0</h2></article>
+          <article class="stat-card"><p>Collected</p><h2 id="paymentCollected">₹0</h2></article>
+          <article class="stat-card"><p>Pending</p><h2 id="paymentPending">₹0</h2></article>
+        </div>
+        <div class="filters"><input id="paymentSearch" placeholder="Search tenant or property..."><select id="paymentFilter"><option value="all">All payments</option><option value="Paid">Paid</option><option value="Pending">Pending</option></select></div>
+        <div class="panel table-wrap"><table><thead><tr><th>Tenant</th><th>Property</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentTable"></tbody></table></div>
+      </section>
+
+      <section id="maintenance" class="page hidden">
+        <div class="section-toolbar"><div><h3>Maintenance Requests</h3><p class="muted">Track repairs and complaints.</p></div><button class="primary" id="addMaintenance">+ New Request</button></div>
+        <div class="filters"><input id="maintenanceSearch" placeholder="Search maintenance requests..."><select id="maintenanceFilter"><option value="all">All statuses</option><option value="Open">Open</option><option value="In Progress">In Progress</option><option value="Resolved">Resolved</option></select></div>
+        <div id="maintenanceGrid" class="maintenance-grid"></div>
+      </section>
+
+      <section id="reports" class="page hidden">
+        <div class="section-toolbar"><div><h3>Reports & Analytics</h3><p class="muted">Summary of your rental business.</p></div><button class="primary" id="exportReport">↓ Export CSV</button></div>
+        <div class="stats">
+          <article class="stat-card"><p>Total Properties</p><h2 id="reportHouses">0</h2></article>
+          <article class="stat-card"><p>Total Tenants</p><h2 id="reportTenants">0</h2></article>
+          <article class="stat-card"><p>Rent Collected</p><h2 id="reportCollected">₹0</h2></article>
+          <article class="stat-card"><p>Pending Rent</p><h2 id="reportPending">₹0</h2></article>
+        </div>
+        <article class="panel"><h3>Property Summary</h3><div class="table-wrap"><table><thead><tr><th>Property</th><th>Location</th><th>Rooms</th><th>Occupied</th><th>Vacant</th><th>Monthly Rent</th></tr></thead><tbody id="reportTable"></tbody></table></div></article>
+      </section>
+      <footer>© 2026 HomeHub Property Manager · Rental Management System</footer>
+    </main>
+  </div>
+
+  <!-- Reusable modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-heading"><h3 id="modalTitle">Add Record</h3><button id="closeModal" class="close-btn" type="button">✕</button></div>
+      <form id="modalForm"><div id="modalFields" class="form-grid"></div><div class="modal-actions"><button type="button" class="secondary" id="cancelModal">Cancel</button><button type="submit" class="primary">Save Record</button></div></form>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="script.js"></script>
+</body>
+</html>
